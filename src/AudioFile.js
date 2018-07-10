@@ -139,7 +139,7 @@ class AudioFile extends React.Component {
       const wavesurferRegionOptions = {
         id,
         color,
-        resize: false,
+        resize: true,
         ...region,
       };
 
@@ -166,10 +166,10 @@ class AudioFile extends React.Component {
   addRegion = () => {
     const currentTime = this.state.wavesurfer.getCurrentTime();
     const newRegion = {
-      start: currentTime - 1,
+      start: currentTime,
       end: currentTime + 1,
       label: this.state.defaultLabel,
-      resize: false,
+      resize: true,
     };
     const regions = {
       ...this.state.regions,
@@ -299,7 +299,7 @@ class AudioFile extends React.Component {
           start: region.start,
           end: region.end,
           label: existingRegion ? existingRegion.label : "",
-          resize: false,
+          resize: true,
         };
         this.setState({
           regions: { ...this.state.regions, [region.id]: stateRegion },
