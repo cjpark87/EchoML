@@ -19,6 +19,8 @@ import DownloadIcon from "material-ui-icons/FileDownload";
 import DeleteIcon from "material-ui-icons/Delete";
 import ZoomInIcon from "material-ui-icons/ZoomIn";
 import ZoomOutIcon from "material-ui-icons/ZoomOut";
+import VerticalZoomOutIcon from "material-ui-icons/UnfoldLess";
+import VerticalZoomInIcon from "material-ui-icons/UnfoldMore";
 import { LinearProgress } from "material-ui/Progress";
 import Tooltip from "material-ui/Tooltip";
 import Snackbar from "material-ui/Snackbar";
@@ -51,6 +53,7 @@ class AudioFile extends React.Component {
       wavesurferShouldScroll: false,
       regionsBeingPlayed: [],
       loadingProgress: 0,
+      barHeight: 10
     };
   }
 
@@ -242,6 +245,22 @@ class AudioFile extends React.Component {
     return finished;
   };
 
+  handleBarHeight = async (barHeight = this.state.barHeight) => {
+    const currentTime = this.state.wavesurfer.getCurrentTime();
+    const progress = currentTime / this.state.wavesurfer.getDuration();
+    await this.destroyWavesurfer();
+    const wavesurfer = await this.initWavesurfer({ barHeight: barHeight });
+    const finished = await new Promise(resolve =>
+      this.setState({ wavesurfer, barHeight: barHeight }, () => {
+        wavesurfer.seekAndCenter(progress);
+        resolve(wavesurfer);
+      }),
+    );
+
+    return finished;
+  };
+
+
   toggleScroll = async () => {
     const wavesurferShouldScroll = !this.state.wavesurferShouldScroll;
     await this.destroyWavesurfer();
@@ -268,6 +287,8 @@ class AudioFile extends React.Component {
         progressColor: "purple",
         scrollParent: false,
         hideScrollbar: false,
+        height: 256,
+        barHeight: this.state.barHeight,
         plugins: [
           SpectrogramPlugin.create({
             container: this.wavesurferSpectrogram,
@@ -512,22 +533,39 @@ class AudioFile extends React.Component {
                   <FastForward />
                 </IconButton>
               </Tooltip>
-              <Tooltip title="Zoom In">
+              <Tooltip title="Zoom In X-Axis">
                 <IconButton
-                  aria-label="Zoom In"
+                  aria-label="Zoom In X-Axis"
                   onClick={() => this.handleZoom(this.state.zoom + 20)}
                 >
                   <ZoomInIcon />
                 </IconButton>
               </Tooltip>
-              <Tooltip title="Zoom Out">
+              <Tooltip title="Zoom Out X-Axis">
                 <IconButton
-                  aria-label="Zoom Out"
+                  aria-label="Zoom Out X-Axis"
                   onClick={() => this.handleZoom(this.state.zoom - 20)}
                 >
                   <ZoomOutIcon />
                 </IconButton>
               </Tooltip>
+              <Tooltip title="Zoom In Y-Axis">
+                <IconButton
+                  aria-label="Zoom In Y-Axis"
+                  onClick={() => this.handleBarHeight(this.state.barHeight + 1)}
+                >
+                  <VerticalZoomInIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Zoom Out Y-Axis">
+                <IconButton
+                  aria-label="Zoom Out Y-Axis"
+                  onClick={() => this.handleBarHeight(this.state.barHeight - 1)}
+                >
+                  <VerticalZoomOutIcon />
+                </IconButton>
+              </Tooltip>
+
 
               <Tooltip title="Add Label">
                 <IconButton
