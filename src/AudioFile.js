@@ -19,6 +19,8 @@ import DownloadIcon from "material-ui-icons/FileDownload";
 import DeleteIcon from "material-ui-icons/Delete";
 import ZoomInIcon from "material-ui-icons/ZoomIn";
 import ZoomOutIcon from "material-ui-icons/ZoomOut";
+import FullscreenIcon from "material-ui-icons/Fullscreen";
+import FullscreenExitIcon from "material-ui-icons/FullscreenExit";
 import VerticalZoomOutIcon from "material-ui-icons/UnfoldLess";
 import VerticalZoomInIcon from "material-ui-icons/UnfoldMore";
 import { LinearProgress } from "material-ui/Progress";
@@ -53,7 +55,8 @@ class AudioFile extends React.Component {
       wavesurferShouldScroll: false,
       regionsBeingPlayed: [],
       loadingProgress: 0,
-      barHeight: 10
+      barHeight: 10,
+      spectrogramPixelRatio: 1
     };
   }
 
@@ -260,6 +263,21 @@ class AudioFile extends React.Component {
     return finished;
   };
 
+  handleSpectrogram = async (pixelRatio = this.state.spectrogramPixelRatio) => {
+    this.setState({spectrogramPixelRatio: pixelRatio})
+    const currentTime = this.state.wavesurfer.getCurrentTime();
+    const progress = currentTime / this.state.wavesurfer.getDuration();
+    await this.destroyWavesurfer();
+    const wavesurfer = await this.initWavesurfer();
+    const finished = await new Promise(resolve =>
+      this.setState({}, () => {
+        wavesurfer.seekAndCenter(progress);
+        resolve(wavesurfer);
+      }),
+    );
+
+    return finished;
+  };
 
   toggleScroll = async () => {
     const wavesurferShouldScroll = !this.state.wavesurferShouldScroll;
@@ -294,7 +312,7 @@ class AudioFile extends React.Component {
             container: this.wavesurferSpectrogram,
             fftSamples: this.spectrogramHeight,
             labels: true,
-            pixelRatio: 1,
+            pixelRatio: this.state.spectrogramPixelRatio,
           }),
           TimelinePlugin.create({
             container: this.wavesurferTimeline,
@@ -552,7 +570,7 @@ class AudioFile extends React.Component {
               <Tooltip title="Zoom In Y-Axis">
                 <IconButton
                   aria-label="Zoom In Y-Axis"
-                  onClick={() => this.handleBarHeight(this.state.barHeight + 1)}
+                  onClick={() => this.handleBarHeight(this.state.barHeight + 2)}
                 >
                   <VerticalZoomInIcon />
                 </IconButton>
@@ -565,8 +583,22 @@ class AudioFile extends React.Component {
                   <VerticalZoomOutIcon />
                 </IconButton>
               </Tooltip>
-
-
+              <Tooltip title="Zoom In Spectrogram">
+                <IconButton
+                  aria-label="Zoom In Spectrogram"
+                  onClick={() => this.handleSpectrogram(this.state.spectrogramPixelRatio/2)}
+                >
+                  <FullscreenIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Zoom Out Spectrogram">
+                <IconButton
+                  aria-label="Zoom Out Spectrogram"
+                  onClick={() => this.handleSpectrogram(this.state.spectrogramPixelRatio*2)}
+                >
+                  <FullscreenExitIcon />
+                </IconButton>
+              </Tooltip>
               <Tooltip title="Add Label">
                 <IconButton
                   aria-label="Add Label"
