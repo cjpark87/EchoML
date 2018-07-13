@@ -237,7 +237,7 @@ class AudioFile extends React.Component {
     const currentTime = this.state.wavesurfer.getCurrentTime();
     const progress = currentTime / this.state.wavesurfer.getDuration();
     await this.destroyWavesurfer();
-    const wavesurfer = await this.initWavesurfer({ pxPerSec, scrollParent });
+    const wavesurfer = await this.initWavesurfer({ minPxPerSec: pxPerSec, scrollParent, barHeight: this.state.barHeight });
     const finished = await new Promise(resolve =>
       this.setState({ wavesurfer, zoom: pxPerSec }, () => {
         wavesurfer.seekAndCenter(progress);
@@ -252,7 +252,7 @@ class AudioFile extends React.Component {
     const currentTime = this.state.wavesurfer.getCurrentTime();
     const progress = currentTime / this.state.wavesurfer.getDuration();
     await this.destroyWavesurfer();
-    const wavesurfer = await this.initWavesurfer({ barHeight: barHeight });
+    const wavesurfer = await this.initWavesurfer({ barHeight: barHeight, minPxPerSec: this.state.zoom, scrollParent: this.state.zoom > 0 });
     const finished = await new Promise(resolve =>
       this.setState({ wavesurfer, barHeight: barHeight }, () => {
         wavesurfer.seekAndCenter(progress);
@@ -268,7 +268,7 @@ class AudioFile extends React.Component {
     const currentTime = this.state.wavesurfer.getCurrentTime();
     const progress = currentTime / this.state.wavesurfer.getDuration();
     await this.destroyWavesurfer();
-    const wavesurfer = await this.initWavesurfer();
+    const wavesurfer = await this.initWavesurfer({ barHeight: this.state.barHeight, minPxPerSec: this.state.zoom, scrollParent: this.state.zoom > 0 });
     const finished = await new Promise(resolve =>
       this.setState({}, () => {
         wavesurfer.seekAndCenter(progress);
@@ -554,7 +554,7 @@ class AudioFile extends React.Component {
               <Tooltip title="Zoom In X-Axis">
                 <IconButton
                   aria-label="Zoom In X-Axis"
-                  onClick={() => this.handleZoom(this.state.zoom + 20)}
+                  onClick={() => this.handleZoom(this.state.zoom + 30)}
                 >
                   <ZoomInIcon />
                 </IconButton>
@@ -562,7 +562,7 @@ class AudioFile extends React.Component {
               <Tooltip title="Zoom Out X-Axis">
                 <IconButton
                   aria-label="Zoom Out X-Axis"
-                  onClick={() => this.handleZoom(this.state.zoom - 20)}
+                  onClick={() => this.handleZoom(this.state.zoom - 30)}
                 >
                   <ZoomOutIcon />
                 </IconButton>
